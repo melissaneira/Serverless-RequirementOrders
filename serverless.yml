@@ -1,0 +1,76 @@
+service: requirement-orders-sls
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  region: us-east-1
+  stage: dev
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: "arn:aws:dynamodb:us-east-1:*:*"
+functions:
+  create:
+    handler: requirement-order/create.create
+    events:
+      - http:
+          path: create
+          method: post
+          cors: true
+
+  list:
+    handler: requirement-order/list.list
+    events:
+      - http:
+          path: list
+          method: get
+          cors: true
+
+  get:
+    handler: requirement-order/get.get
+    events:
+      - http:
+          path: get/{idRequirementOrder}
+          method: get
+          cors: true
+
+  update:
+    handler: requirement-order/update.update
+    events:
+      - http:
+          path: update/{idRequirementOrder}
+          method: put
+          cors: true
+
+  delete:
+    handler: requirement-order/delete.delete
+    events:
+      - http:
+          path: delete/{idRequirementOrder}
+          method: delete
+          cors: true
+
+resources:
+  Resources:
+    RequirementOrdersTable:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: idRequirementOrder
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: idRequirementOrder
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: RequirementOrdersTableSLESS
